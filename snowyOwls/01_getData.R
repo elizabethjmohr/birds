@@ -1,29 +1,27 @@
 library(tidyverse)
 library(auk)
 
-ebd_file <- "../../../data/ebird/ebd_relOct-2021.txt"
-event_file <- "../../../data/ebird/event_relOct-2021.txt"
-ebd_output_file <- "../../../data/ebird/ebd_snoowl_complete_relOct-2021.txt"
-event_output_file <- "../../../data/ebird/ebd_snoowl_zerofill_relOct-2021.txt"
-snowyOwl_complete_data <- input_file %>%
-  auk_ebd(file_sampling = f_smp) %>%
+# Specify output file directory
+f_ebd <- "../../../data/ebird/ebd_snoowl_complete_relOct-2021.txt"
+f_sampling <- "../../../data/ebird/ebd_snoowl_zerofill_relOct-2021.txt"
+
+# Make auk_ebd object and specify filters
+ebd_filters <- auk_ebd("../../../data/ebird/ebd_snoowl1_relOct-2021/ebd_snoowl1_relOct-2021.txt", 
+                       file_sampling = "../../../data/ebird/ebd_sampling_relOct-2021/ebd_sampling_relOct-2021.txt") %>%
+  auk_species("Snowy Owl") %>%
   auk_species(species = "Snowy Owl") %>%
   auk_state(state = ebird_states %>% 
               filter(country == "United States", state %in% state.name[state.region == "Northeast"|state.region == "North Central"]) %>% 
               pull(state_code)) %>%
-  auk_complete()%>%
-  auk_filter(file = ebd_output_file, 
-             file_sampling = event_output_file) %>%
-  read_ebd() 
+  auk_complete()
 
-snowyOwl_zf <- auk_zerofill(snowyOwl_complete_data)%>%
-  collapse_zerofill(zf) %>%
-  st_as_sf(coords = c("longitude", "latitude"), crs = 4326)
-save("snowyOwl_zf", file = "./snowyOwls/snowyOwl_zf.Rds")  
+# Filter data
+auk_filter(ebd_filters, file = f_ebd, file_sampling = f_sampling)
 
-owlObservations <- read_ebd("../../../data/ebird/ebd_snoowl1_relOct-2021/ebd_snoowl1_relOct-2021.txt") %>%
-  filter(STATE %in% states) %>%
-  st_as_sf(coords = c("LONGITUDE", "LATITUDE"), crs = 4326)
+# Produce zero-filled data
+ebd_zf <- auk_zerofill(f_ebd, f_sampling, collapse = TRUE)
+write_csv(ebd_zf, file = "../../../data/ebird/ebd_snoowl_zerofill_relOct-2021.csv")
+
 
 
 

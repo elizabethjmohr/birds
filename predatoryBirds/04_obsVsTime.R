@@ -31,7 +31,7 @@ numberOfChecklists <- birdsOfPrey_zf %>%
 checklistPercents <-  birdsOfPrey_zf %>%
   mutate(Year = year(observation_date)) %>%
   group_by(common_name, Year) %>%
-  summarise(percent = mean(species_observed))
+  summarise(percent = 100*mean(species_observed))
   
 # Plot total number of observations per year
 p <- ggplot(observationSummary, aes(x = Year, y = count, color = common_name)) + 
@@ -60,6 +60,22 @@ ggsave(filename = "observations.png",
        units = "in")
 # Plot observations from complete checklists, 
 # normalized by number of checklists
+p2 <- ggplot(checklistPercents, aes(x = Year, y = percent, color = common_name)) + 
+  geom_line(size = 0.8) +
+  geom_point(size = 2)+
+  ylab("Percent of checklists")+
+  xlab(NULL)+
+  theme_minimal_grid() + 
+  scale_x_continuous(limits = c(2010, 2020),
+                     breaks = c(2010, 2015, 2020))+
+  theme(legend.text = element_text(size = 8),
+        legend.title = element_text(size = 12))+
+  scale_color_colorblind(labels = c("Bald Eagle", 
+                                    "Great Horned Owl", 
+                                    "Sharp-shinned Hawk", 
+                                    "Rough-legged Hawk",
+                                    "Peregrine Falcon")) + 
+  guides(color = guide_legend(title = "Species"))
 
 # Plot number of checklists per year
 
