@@ -78,6 +78,21 @@ p2 <- ggplot(checklistPercents, aes(x = Year, y = percent, color = common_name))
   guides(color = guide_legend(title = "Species"))
 
 # Plot number of checklists per year
+f_sampling <- "../../../data/ebird/ebd_grhowl_sampling_relOct-2021.txt"
+f_ebd <- "../../../data/ebird/ebd_grhowl_zerofill_relOct-2021.txt"
+ebd_filters <- auk_ebd("../../../data/ebird/ebd_snoowl1_relOct-2021/ebd_snoowl1_relOct-2021.txt", 
+                       file_sampling = "../../../data/ebird/ebd_sampling_relOct-2021/ebd_sampling_relOct-2021.txt") %>%
+  auk_species("Snowy Owl") %>%
+  auk_species(species = "Snowy Owl") %>%
+  auk_state(state = ebird_states %>% 
+              filter(country == "United States", state %in% state.name[state.region == "Northeast"|state.region == "North Central"]) %>% 
+              pull(state_code)) %>%
+  auk_complete()
+# Filter data
+auk_filter(ebd_filters, file = f_ebd, file_sampling = f_sampling)
 
-# Plot histograms for each year with duration_minutes()
+# Produce zero-filled data
+ebd_zf <- auk_zerofill(f_ebd, f_sampling, collapse = TRUE)
+write_csv(ebd_zf, file = "../../../data/ebird/ebd_snoowl_zerofill_relOct-2021.csv")
+
 
