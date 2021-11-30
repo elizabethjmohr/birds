@@ -8,7 +8,7 @@ ebd_zf <- read_csv("../../../data/ebird/ebd_snoowl_zerofill_relOct-2021.csv")
 ebd_zf_2010_2019 <- ebd_zf %>%
   filter(year(observation_date) < 2020, year(observation_date) > 2009)
 
-populations <- readxl::read_xlsx(path = "./nst-est2019-01.xlsx", 
+populations <- readxl::read_xlsx(path = "./snowyOwls/nst-est2019-01.xlsx", 
                                  range ="A10:M60",
                                  col_names = c("Area", "2010 Census", "Estimates Base", as.character(2010:2019))) %>%
   mutate(Area = substring(Area, 2)) %>%
@@ -77,12 +77,13 @@ checkListCountsWide <- checkListCounts %>%
               names_from = year, 
               values_from = checklistsPerThousand) %>%
   arrange(`2019`)
-
+greens <- brewer.pal(9,"Greens")
 heatmap <- plot_ly(
   y = checkListCountsWide$state, 
   x = as.character(2010:2019),
   z = (as.matrix(checkListCountsWide[,2:11])), 
-  colorscale = "YlOrRd",
+  colors = colorRamp(c(greens[9], greens[3])),
+  #colorscale = "YlOrRd",
   type = "heatmap",
   hovertemplate = paste("%{y},", "%{x}", "<extra></extra>"),
   reversescale=TRUE,
@@ -93,6 +94,9 @@ heatmap <- plot_ly(
                   text = as.character(round(checkListCounts$checklistsPerThousand, 1)),
                   showarrow = FALSE,
                   font = list(color = "black")) %>%
-  layout(showlegend = FALSE)
+  layout(showlegend = FALSE,
+         paper_bgcolor='rgba(0,0,0,0)',
+         plot_bgcolor='rgba(0,0,0,0)')
 
-htmlwidgets::saveWidget(heatmap, "../website/content/project/snowyOwls/heatmap.html")
+htmlwidgets::saveWidget(heatmap, "../website/content/project/snowyOwls/heatmap.html",
+                        background = "transparent")

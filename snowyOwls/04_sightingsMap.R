@@ -27,7 +27,7 @@ sizes <- c("eBird checklists" = 0.1,
            "Snowy Owl sightings" = 0.3)
 
 sightingsMap <- ggplot(states) +
-  geom_sf()+
+  geom_sf(color = "black")+
   geom_sf(data = snowyOwl_zf_sf %>% filter(year(observation_date)>= 2009,
                                            (month(observation_date) <=4 | month(observation_date) >=10)),
           aes(color = "eBird checklists", 
@@ -50,7 +50,7 @@ ggsave(filename = "sightings.png",
        path = "../website/content/project/snowyOwls/",
        plot = sightingsMap,
        device = "png",
-       width = 8, 
+       width = 6.2, 
        height = 4,
        units = "in")
 
@@ -80,7 +80,7 @@ sightingsMapInt <- ggplot(states %>% filter(NAME == "Wisconsin")) +
                       aes(data_id = season),
                       color = "#2b8cbe",
                       alpha = 0.7,
-                      size = 1.0) +
+                      size = 1.2) +
   coord_sf(crs = 5070) +
   guides(size = "none", alpha = "none")+
   theme_map()+
@@ -96,7 +96,6 @@ sightingsPerSeason <- observationsByYear %>%
 sightingsVsTime <- ggplot(sightingsPerSeason) + 
   geom_col_interactive(aes(data_id = season, x = season, y = n)) + 
   theme_minimal_hgrid() +
-  # scale_x_continuous()+
   ylab("Number of sightings") + 
   theme(axis.title.x = element_blank(),
         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1, size = 10),
@@ -104,15 +103,19 @@ sightingsVsTime <- ggplot(sightingsPerSeason) +
         panel.background = element_rect(fill = "transparent",colour = NA))
 
 interactiveSightings <- girafe(ggobj = plot_grid(sightingsMapInt, 
-                                                 sightingsVsTime, 
+                                                 plot_grid(NULL,
+                                                           sightingsVsTime,
+                                                           nrow = 2), 
                                                  nrow = 1, 
-                                                 rel_widths = c(0.7,1)),
+                                                 rel_widths = c(1.7,1)),
                                options = list(
-                                 opts_hover_inv(css = "opacity:0.3;")
+                                 opts_hover_inv(css = "opacity:0.1;stroke-opacity:0"),
+                                 opts_hover(css = "r:2pt; fill:#cd950c; stroke:#b8860b")
                                ),
                                width_svg = 8,
-                               height_svg = 3.5,
+                               height_svg = 5,
                                bg = "transparent")
+
 saveWidget(interactiveSightings, 
            "../website/content/project/snowyOwls/interactiveSightingsWI.html",
            background = "transparent")
